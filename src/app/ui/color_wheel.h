@@ -38,6 +38,9 @@ namespace app {
     bool isDiscrete() const { return m_discrete; }
     void setDiscrete(bool state);
 
+    bool isInvertNormalMapY() const { return m_invertNormalMapY; }
+    void setInvertNormalMapY(bool state);
+
     void setColorModel(ColorModel colorModel);
     void setHarmony(Harmony harmony);
 
@@ -70,6 +73,7 @@ namespace app {
     gfx::Color m_bgColor;
     int m_wheelRadius;
     bool m_discrete;
+    bool m_invertNormalMapY;
     ColorModel m_colorModel;
     Harmony m_harmony;
     ui::Button m_options;

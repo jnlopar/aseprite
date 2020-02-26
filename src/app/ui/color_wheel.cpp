@@ -49,6 +49,7 @@ static struct {
 
 ColorWheel::ColorWheel()
   : m_discrete(Preferences::instance().colorBar.discreteWheel())
+  , m_invertNormalMapY(Preferences::instance().colorBar.invertNormalMapY())
   , m_colorModel((ColorModel)Preferences::instance().colorBar.wheelModel())
   , m_harmony((Harmony)Preferences::instance().colorBar.harmony())
   , m_options("")
@@ -92,6 +93,7 @@ app::Color ColorWheel::getMainAreaColor(const int _u, const int umax,
 
     int r = 128 + di*std::cos(a);
     int g = 128 + di*std::sin(a);
+    if (m_invertNormalMapY) g = 255 - g;
     int b = 255 - di;
     if (d < m_wheelRadius+2*guiscale()) {
       return app::Color::fromRgb(
@@ -313,6 +315,17 @@ void ColorWheel::setDiscrete(bool state)
   invalidate();
 }
 
+void ColorWheel::setInvertNormalMapY(bool state)
+{
+  if (m_invertNormalMapY != state)
+    m_paintFlags = AllAreasFlag;
+
+  m_invertNormalMapY = state;
+  Preferences::instance().colorBar.invertNormalMapY(m_invertNormalMapY);
+  
+  invalidate();
+}
+
 void ColorWheel::setColorModel(ColorModel colorModel)
 {
   m_colorModel = colorModel;
@@ -363,6 +376,7 @@ void ColorWheel::onOptions()
 {
   Menu menu;
   MenuItem discrete("Discrete");
+  MenuItem invertNormalMapY("Invert Y");
   MenuItem none("Without Harmonies");
   MenuItem complementary("Complementary");
   MenuItem monochromatic("Monochromatic");
@@ -382,7 +396,13 @@ void ColorWheel::onOptions()
     menu.addChild(&triadic);
     menu.addChild(&tetradic);
     menu.addChild(&square);
+  } else {
+    menu.addChild(&invertNormalMapY);
   }
+
+  if (isInvertNormalMapY())
+    invertNormalMapY.setSelected(true);
+  invertNormalMapY.Click.connect(base::Bind<void>(&ColorWheel::setInvertNormalMapY, this, !isInvertNormalMapY()));
 
   if (isDiscrete())
     discrete.setSelected(true);
